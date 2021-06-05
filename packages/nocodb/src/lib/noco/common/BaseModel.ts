@@ -157,7 +157,7 @@ class BaseModel<T extends BaseApiBuilder<any>> extends BaseModelSql {
         }
         return paramsObj;
       }, {}) : {},
-      url: apiMeta.path,
+      url: this.parseBody(apiMeta.path, apiReq, data, {}),
       method: apiMeta.method,
       data: apiMeta.body,
       headers: apiMeta.headers ? apiMeta.headers.reduce((headersObj, header) => {
