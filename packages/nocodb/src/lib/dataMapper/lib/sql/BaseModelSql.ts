@@ -1129,7 +1129,7 @@ class BaseModelSql extends BaseModel {
   async _getManyToManyList({parent, child}, rest = {}, index) {
 
     let {fields, where, limit, offset, sort} = this._getChildListArgs(rest, index, child);
-    const {tn,cn,vtn,vcn,vrcn,rtn,rcn} = this.manyToManyRelations.find(({rtn}) => rtn === child) || {};
+    const {tn, cn, vtn, vcn, vrcn, rtn, rcn} = this.manyToManyRelations.find(({rtn}) => rtn === child) || {};
     const _cn = this.dbModels[tn].columnToAlias?.[cn];
 
     if (fields !== '*' && fields.split(',').indexOf(cn) === -1) {
@@ -1142,10 +1142,10 @@ class BaseModelSql extends BaseModel {
         const query =
           this
             .dbDriver(child)
-            .join(vtn,`${vtn}.${vrcn}`,`${rtn}.${rcn}`)
+            .join(vtn, `${vtn}.${vrcn}`, `${rtn}.${rcn}`)
             .where(`${vtn}.${vcn}`, p[this.columnToAlias?.[this.pks[0].cn] || this.pks[0].cn])
             .xwhere(where, this.dbModels[child].selectQuery(''))
-            .select({[_cn]:`${vtn}.${cn}`,...this.dbModels[child].selectQuery(fields)}) // ...fields.split(','));
+            .select({[_cn]: `${vtn}.${cn}`, ...this.dbModels[child].selectQuery(fields)}) // ...fields.split(','));
 
         this._paginateAndSort(query, {sort, limit, offset}, null, true);
         return this.isSqlite() ? this.dbDriver.select().from(query) : query;
@@ -1256,7 +1256,7 @@ class BaseModelSql extends BaseModel {
    */
 
   // todo : add conditionGraph
-  async nestedList({childs = '', parents = '',many='', where, fields: fields1, f, ...rest}) {
+  async nestedList({childs = '', parents = '', many = '', where, fields: fields1, f, ...rest}) {
     let fields = fields1 || f || '*';
     try {
 
@@ -1291,17 +1291,12 @@ class BaseModelSql extends BaseModel {
       }))
 
 
-
-
-
       if (items && items.length) {
         await Promise.all([...new Set(many.split(','))].map((child, index) => child && this._getManyToManyList({
           parent: items,
           child
         }, rest, index)));
       }
-
-
 
 
       return items;
@@ -1381,7 +1376,7 @@ class BaseModelSql extends BaseModel {
     const gs = _.groupBy(parents, this.dbModels[parent]?.columnToAlias?.[rcn] || rcn);
 
     childs.forEach(row => {
-      row[this.dbModels?.[parent]?._tn || parent] = gs[row[this.dbModels[parent]?.columnToAlias?.[cn] || cn]]?.[0];
+      row[this.dbModels?.[parent]?._tn || parent] = gs[row[this.dbModels[parent]?.columnToAlias?.[cn] || cn]]?.[0] || gs[row[cn || gs[row[this.dbModels[parent]?.columnToAlias?.[cn] || cn]]?.[0]]]?.[0];
     })
   }
 
